@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Movie } from '../entities/movie.entity';
+import { Movie } from './entities/movie.entity';
 import { INestApplication } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
 import { AppModule } from '../app.module';

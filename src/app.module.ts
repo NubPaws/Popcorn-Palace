@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MoviesController } from './controllers/movies.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { MoviesService } from './services/movies.service';
-import { Movie } from './entities/movie.entity';
+import { MoviesModule } from './movies/movies.module';
 
 @Module({
   imports: [
@@ -19,12 +17,13 @@ import { Movie } from './entities/movie.entity';
       username: process.env.DATABASE_USER || 'popcorn-palace',
       password: process.env.DATABASE_PASSWORD || 'popcorn-palace',
       database: process.env.DATABASE_NAME || 'popcorn-palace',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
       autoLoadEntities: true,
       synchronize: true, // TODO: Disable this in production mode.
     }),
-    TypeOrmModule.forFeature([Movie]),
+    MoviesModule,
   ],
-  controllers: [AppController, MoviesController],
-  providers: [AppService, MoviesService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

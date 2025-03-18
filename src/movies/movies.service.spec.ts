@@ -1,4 +1,4 @@
-import { Movie } from '../entities/movie.entity';
+import { Movie } from './entities/movie.entity';
 import { MoviesService } from './movies.service';
 import { Repository } from 'typeorm';
 import { TestingModule, Test } from '@nestjs/testing';
