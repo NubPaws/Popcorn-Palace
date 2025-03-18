@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { CreateMovieDto } from '../movies.dto';
 
 @Entity()
 export class Movie {
@@ -19,4 +20,14 @@ export class Movie {
 
   @Column({ type: 'integer' })
   releaseYear: number;
+
+  constructor(createMovieDto?: CreateMovieDto) {
+    if (createMovieDto) {
+      this.title = createMovieDto.title;
+      this.genre = createMovieDto.genre;
+      this.duration = createMovieDto.duration;
+      this.rating = createMovieDto.rating;
+      this.releaseYear = createMovieDto.releaseYear;
+    }
+  }
 }

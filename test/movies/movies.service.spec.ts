@@ -1,5 +1,5 @@
-import { Movie } from './entities/movie.entity';
-import { MoviesService } from './movies.service';
+import { Movie } from '../../src/movies/entities/movie.entity';
+import { MoviesService } from '../../src/movies/movies.service';
 import { Repository } from 'typeorm';
 import { TestingModule, Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';

@@ -1,8 +1,8 @@
 import { Repository } from 'typeorm';
-import { Movie } from './entities/movie.entity';
+import { Movie } from '../../src/movies/entities/movie.entity';
 import { INestApplication } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
-import { AppModule } from '../app.module';
+import { AppModule } from '../../src/app.module';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as request from 'supertest';
 

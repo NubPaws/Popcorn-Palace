@@ -5,3 +5,5 @@ export class CreateMovieDto {
   rating: number;
   releaseYear: number;
 }
+
+export type UpdateMovieDto = Partial<CreateMovieDto>;
