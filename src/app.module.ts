@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { MoviesModule } from './movies/movies.module';
+import { ShowtimesModule } from './showtimes/showtimes.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MoviesModule } from './movies/movies.module';
       synchronize: true, // TODO: Disable this in production mode.
     }),
     MoviesModule,
+    ShowtimesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
