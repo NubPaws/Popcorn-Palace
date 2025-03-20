@@ -69,6 +69,6 @@ export class MoviesRepository {
       return;
     }
 
-    return this.repo.delete({ title: title });
+    this.repo.delete({ title: title });
   }
 }
