@@ -1,5 +1,3 @@
-import { CreateMovieDto } from '../movies/movies.dto';
-
 export class CreateShowtimeDto {
   price: number;
   movieId: number;
@@ -8,4 +6,4 @@ export class CreateShowtimeDto {
   endTime: string;
 }
 
-export type UpdateShowtimeDto = Partial<CreateMovieDto>;
+export type UpdateShowtimeDto = Partial<CreateShowtimeDto>;

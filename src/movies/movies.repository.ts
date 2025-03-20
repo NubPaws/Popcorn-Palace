@@ -18,6 +18,10 @@ export class MoviesRepository {
     return this.repo.findOneBy({ title });
   }
 
+  async movieIdExists(id: number): Promise<boolean> {
+    return (await this.repo.countBy({ id })) > 0;
+  }
+
   async movieExists(title?: string): Promise<boolean> {
     return (await this.repo.countBy({ title })) > 0;
   }
