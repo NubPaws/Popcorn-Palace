@@ -36,6 +36,10 @@ describe('MoviesController', () => {
     moviesController = module.get<MoviesController>(MoviesController);
   });
 
+  afterAll(() => {
+    jest.clearAllMocks();
+  });
+
   describe('findAll', () => {
     it('should return an array of movies', async () => {
       moviesServiceMock.findAll.mockResolvedValue([mockMovie]);
@@ -59,7 +63,7 @@ describe('MoviesController', () => {
 
       const result = await moviesController.create(createMovieDto);
       expect(result).toEqual(mockMovie);
-      // The controller converts DTO to an entity, so we expect an object instance of Movie
+      // Consider create converts dto to Movie object.
       expect(moviesServiceMock.create).toHaveBeenCalledWith(expect.any(Object));
     });
   });
@@ -70,11 +74,13 @@ describe('MoviesController', () => {
         ...mockMovie,
         genre: 'Comedy',
       });
+
       const updateMovieDto: UpdateMovieDto = { genre: 'Comedy' };
       const result = await moviesController.update(
         'Test Movie',
         updateMovieDto,
       );
+
       expect(result.genre).toEqual('Comedy');
       expect(moviesServiceMock.update).toHaveBeenCalledWith(
         'Test Movie',
