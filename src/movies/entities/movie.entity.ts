@@ -1,33 +1,26 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { CreateMovieDto } from '../movies.dto';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Showtime } from '../../showtimes/entities/showtime.entity';
 
 @Entity()
 export class Movie {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column()
+  @Column('text')
   title: string;
 
-  @Column({})
+  @Column('text')
   genre: string;
 
-  @Column({ type: 'integer' })
+  @Column('integer')
   duration: number;
 
-  @Column({ type: 'float' })
+  @Column('float')
   rating: number;
 
-  @Column({ type: 'integer' })
+  @Column('integer')
   releaseYear: number;
 
-  constructor(createMovieDto?: CreateMovieDto) {
-    if (createMovieDto) {
-      this.title = createMovieDto.title;
-      this.genre = createMovieDto.genre;
-      this.duration = createMovieDto.duration;
-      this.rating = createMovieDto.rating;
-      this.releaseYear = createMovieDto.releaseYear;
-    }
-  }
+  @OneToMany(() => Showtime, (showtime) => showtime.movie)
+  showtimes: Showtime[];
 }

@@ -3,10 +3,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Movie } from '../../movies/entities/movie.entity';
-import { CreateShowtimeDto } from '../showtimes.dto';
+import { Booking } from '../../booking/entities/booking.entity';
 
 @Entity()
 export class Showtime {
@@ -16,12 +17,9 @@ export class Showtime {
   @Column({ type: 'float' })
   price: number;
 
-  @ManyToOne(() => Movie, { eager: true })
+  @ManyToOne(() => Movie, (movie) => movie.showtimes)
   @JoinColumn({ name: 'movieId' })
   movie: Movie;
-
-  @Column()
-  movieId: number;
 
   @Column({ type: 'text' })
   theater: string;
@@ -32,13 +30,6 @@ export class Showtime {
   @Column({ type: 'timestamp' })
   endTime: Date;
 
-  constructor(createShowtimeDto?: CreateShowtimeDto) {
-    if (createShowtimeDto) {
-      this.price = createShowtimeDto.price;
-      this.movieId = createShowtimeDto.movieId;
-      this.theater = createShowtimeDto.theater;
-      this.startTime = new Date(createShowtimeDto.startTime);
-      this.endTime = new Date(createShowtimeDto.endTime);
-    }
-  }
+  @OneToMany(() => Booking, (booking) => booking.showtime)
+  bookings: Booking[];
 }
