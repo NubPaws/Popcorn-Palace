@@ -14,5 +14,6 @@
   // "typescript.preferences.autoImportFileExcludePatterns": ["**/node_modules/**", "**/dist/**"],
   "eslint.format.enable": true,
   "eslint.lintTask.enable": true,
-  "typescript.tsdk": "node_modules\\typescript\\lib"
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "typescript.updateImportsOnPaste.enabled": true
 }

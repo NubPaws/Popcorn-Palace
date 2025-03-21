@@ -7,9 +7,24 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
-import { CreateShowtimeDto, UpdateShowtimeDto } from './showtimes.dto';
+import {
+  CreateShowtimeDto,
+  ResponseShowtimeDto,
+  UpdateShowtimeDto,
+} from './showtimes.dto';
 import { ShowtimesService } from './showtimes.service';
 import { Showtime } from './entities/showtime.entity';
+
+function responseFromShowtime(showtime: Showtime): ResponseShowtimeDto {
+  return {
+    id: showtime.id,
+    movieId: showtime.movieId,
+    theater: showtime.theater,
+    price: showtime.price,
+    startTime: showtime.startTime.toISOString(),
+    endTime: showtime.endTime.toISOString(),
+  } as ResponseShowtimeDto;
+}
 
 @Controller('showtimes')
 export class ShowtimesController {
@@ -18,13 +33,20 @@ export class ShowtimesController {
   @Get(':showtimeId')
   @HttpCode(200)
   async find(@Param('showtimeId') showtimeId: number) {
-    return this.showtimesService.find(showtimeId);
+    const showtime = await this.showtimesService.find(showtimeId);
+    return responseFromShowtime(showtime);
   }
 
   @Post()
   @HttpCode(200)
-  async add(@Body() createShowtimeDto: CreateShowtimeDto) {
-    return this.showtimesService.add(new Showtime(createShowtimeDto));
+  async add(
+    @Body() createShowtimeDto: CreateShowtimeDto,
+  ): Promise<ResponseShowtimeDto> {
+    const showtime = await this.showtimesService.add(
+      new Showtime(createShowtimeDto),
+    );
+
+    return responseFromShowtime(showtime);
   }
 
   @Post('update/:showtimeId')
@@ -41,7 +63,11 @@ export class ShowtimesController {
       endTime: endTime ? new Date(endTime) : undefined,
     };
 
-    return this.showtimesService.update(showtimeId, updatedData);
+    const showtime = await this.showtimesService.update(
+      showtimeId,
+      updatedData,
+    );
+    return responseFromShowtime(showtime);
   }
 
   @Delete(':showtimeId')

@@ -16,9 +16,12 @@ export class Showtime {
   @Column({ type: 'float' })
   price: number;
 
-  @ManyToOne(() => Movie)
+  @ManyToOne(() => Movie, { eager: true })
   @JoinColumn({ name: 'movieId' })
   movie: Movie;
+
+  @Column()
+  movieId: number;
 
   @Column({ type: 'text' })
   theater: string;
@@ -32,7 +35,7 @@ export class Showtime {
   constructor(createShowtimeDto?: CreateShowtimeDto) {
     if (createShowtimeDto) {
       this.price = createShowtimeDto.price;
-      this.movie = { id: createShowtimeDto.movieId } as Movie;
+      this.movieId = createShowtimeDto.movieId;
       this.theater = createShowtimeDto.theater;
       this.startTime = new Date(createShowtimeDto.startTime);
       this.endTime = new Date(createShowtimeDto.endTime);

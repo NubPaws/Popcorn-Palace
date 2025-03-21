@@ -1,11 +1,7 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Showtime } from './entities/showtime.entity';
-import { LessThan, MoreThan, Not, Repository } from 'typeorm';
+import { LessThan, MoreThan, Repository } from 'typeorm';
 
 @Injectable()
 export class ShowtimesRepository {
@@ -19,15 +15,8 @@ export class ShowtimesRepository {
   }
 
   async addShowtime(showtime: Showtime): Promise<Showtime> {
-    if (showtime.startTime > showtime.endTime) {
-      throw new BadRequestException(
-        `Show's startTime (${showtime.startTime}) is after show's endTime (${showtime.endTime}).`,
-      );
-    }
-
     const existingOne = await this.repo.findOne({
       where: {
-        id: Not(showtime.id),
         theater: showtime.theater,
         startTime: LessThan(showtime.endTime),
         endTime: MoreThan(showtime.startTime),

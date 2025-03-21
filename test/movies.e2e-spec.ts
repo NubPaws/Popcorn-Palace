@@ -3,16 +3,16 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 
-const testMovie = {
-  title: 'Sample Movie Title 1',
-  genre: 'Action',
-  duration: 120,
-  rating: 8.7,
-  releaseYear: 2025,
-};
-
 describe('Movies API (e2e)', () => {
   let app: INestApplication;
+
+  const testMovie = {
+    title: 'Sample Movie Title 1',
+    genre: 'Action',
+    duration: 120,
+    rating: 8.7,
+    releaseYear: 2025,
+  };
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
