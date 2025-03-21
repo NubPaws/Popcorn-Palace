@@ -18,6 +18,14 @@ export class MoviesRepository {
     return this.repo.findOneBy({ title });
   }
 
+  async getMovieById(id?: number): Promise<Movie | null> {
+    return this.repo.findOneBy({ id });
+  }
+
+  async movieIdExists(id: number): Promise<boolean> {
+    return (await this.repo.countBy({ id })) > 0;
+  }
+
   async movieExists(title?: string): Promise<boolean> {
     return (await this.repo.countBy({ title })) > 0;
   }
@@ -69,6 +77,6 @@ export class MoviesRepository {
       return;
     }
 
-    return this.repo.delete({ title: title });
+    this.repo.delete({ title: title });
   }
 }
