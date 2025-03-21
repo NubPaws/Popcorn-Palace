@@ -7,10 +7,19 @@ import { Movie } from '../movies/entities/movie.entity';
 class InvalidStartOrEndTimeException extends BadRequestException {
   constructor(startTime: Date, endTime: Date, duration: number) {
     super(
-      `Showtime's startTime (${startTime}) and endTime (${endTime})` +
+      `Showtime's startTime (${startTime}) and endTime (${endTime}) ` +
         `don't match the movie's duration (${duration} minutes).`,
     );
   }
+}
+
+function areTimesValid(startTime: Date, endTime: Date, { duration }: Movie) {
+  const movieEndTimeMs = startTime.getTime() + duration * 60 * 1000;
+  const endTimeMs = endTime.getTime();
+
+  console.log(movieEndTimeMs, endTimeMs, startTime, endTime, duration);
+
+  return movieEndTimeMs <= endTimeMs;
 }
 
 @Injectable()
@@ -35,7 +44,7 @@ export class ShowtimesService {
     }
 
     // Make sure that the time the show starts and end match with the movie's duration.
-    if (this.areTimesValid(showtime.startTime, showtime.endTime, movie)) {
+    if (!areTimesValid(showtime.startTime, showtime.endTime, movie)) {
       throw new InvalidStartOrEndTimeException(
         showtime.startTime,
         showtime.endTime,
@@ -63,7 +72,7 @@ export class ShowtimesService {
 
     const startTime = updates.startTime ?? showtime.startTime;
     const endTime = updates.endTime ?? showtime.endTime;
-    if (this.areTimesValid(startTime, endTime, movie)) {
+    if (!areTimesValid(startTime, endTime, movie)) {
       throw new InvalidStartOrEndTimeException(
         startTime,
         endTime,
@@ -76,18 +85,5 @@ export class ShowtimesService {
 
   async remove(showtimeId: number): Promise<void> {
     this.showtimesRepository.deleteShowtime(showtimeId);
-  }
-
-  areTimesValid(startTime: Date, endTime: Date, movie: Movie) {
-    const { duration } = movie;
-
-    const movieEndTimeMs = startTime.getTime() + duration;
-    const endTimeMs = endTime.getTime();
-
-    if (movieEndTimeMs > endTimeMs) {
-      return false;
-    }
-
-    return true;
   }
 }
