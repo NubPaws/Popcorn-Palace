@@ -14,28 +14,28 @@ export class MoviesRepository {
     private readonly repo: Repository<Movie>,
   ) {}
 
-  async getMovie(title?: string): Promise<Movie | null> {
+  async getByTitle(title?: string): Promise<Movie | null> {
     return this.repo.findOneBy({ title });
   }
 
-  async getMovieById(id?: number): Promise<Movie | null> {
+  async getById(id?: number): Promise<Movie | null> {
     return this.repo.findOneBy({ id });
   }
 
-  async movieIdExists(id: number): Promise<boolean> {
-    return (await this.repo.countBy({ id })) > 0;
+  async existsByTitle(title?: string): Promise<boolean> {
+    return (await this.repo.countBy({ title })) > 0;
   }
 
-  async movieExists(title?: string): Promise<boolean> {
-    return (await this.repo.countBy({ title })) > 0;
+  async existsById(id: number): Promise<boolean> {
+    return (await this.repo.countBy({ id })) > 0;
   }
 
   async findAll(): Promise<Movie[]> {
     return this.repo.find();
   }
 
-  async saveMovie(movie: Movie) {
-    if (await this.movieExists(movie.title)) {
+  async saveMovie(movie: Movie): Promise<Movie> {
+    if (await this.existsByTitle(movie.title)) {
       throw new ConflictException(
         `Movie with title "${movie.title}" already exists in the database.`,
       );
@@ -44,8 +44,8 @@ export class MoviesRepository {
     return this.repo.save(movie);
   }
 
-  async updateMovie(title: string, updates: Partial<Movie>) {
-    const movie = await this.getMovie(title);
+  async updateMovie(title: string, updates: Partial<Movie>): Promise<Movie> {
+    const movie = await this.getByTitle(title);
     if (!movie) {
       throw new NotFoundException(
         `Movie titled "${title}" does not exist in the database.`,
@@ -59,7 +59,7 @@ export class MoviesRepository {
     if (
       updates.title &&
       updates.title !== title &&
-      (await this.movieExists(updates.title))
+      (await this.existsByTitle(updates.title))
     ) {
       throw new ConflictException(
         `Movie with title "${updates.title}" already exists in the database.`,
@@ -71,7 +71,7 @@ export class MoviesRepository {
   }
 
   async deleteMovie(title: string) {
-    const movie = await this.getMovie(title);
+    const movie = await this.getByTitle(title);
 
     if (!movie) {
       return;

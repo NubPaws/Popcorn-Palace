@@ -6,7 +6,7 @@ export class Movie {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column('text')
+  @Column({ type: 'text', unique: true })
   title: string;
 
   @Column('text')
@@ -21,6 +21,8 @@ export class Movie {
   @Column('integer')
   releaseYear: number;
 
-  @OneToMany(() => Showtime, (showtime) => showtime.movie)
+  @OneToMany(() => Showtime, (showtime) => showtime.movie, {
+    onDelete: 'CASCADE',
+  })
   showtimes: Showtime[];
 }

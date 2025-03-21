@@ -30,6 +30,8 @@ export class Showtime {
   @Column({ type: 'timestamp' })
   endTime: Date;
 
-  @OneToMany(() => Booking, (booking) => booking.showtime)
+  @OneToMany(() => Booking, (booking) => booking.showtime, {
+    onDelete: 'CASCADE',
+  })
   bookings: Booking[];
 }

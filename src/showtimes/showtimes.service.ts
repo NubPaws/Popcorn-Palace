@@ -34,7 +34,7 @@ export class ShowtimesService {
   }
 
   async add(showtime: Showtime): Promise<Showtime> {
-    const movie = await this.moviesRepository.getMovieById(showtime.movieId);
+    const movie = await this.moviesRepository.getById(showtime.movieId);
 
     // Check that the movie exists here.
     if (!movie) {
@@ -65,7 +65,7 @@ export class ShowtimesService {
     }
 
     const movieId = updates.movieId ?? showtime.movieId;
-    const movie = await this.moviesRepository.getMovieById(movieId);
+    const movie = await this.moviesRepository.getById(movieId);
     if (!movie) {
       throw new BadRequestException(`Movie #${movieId} does not exist`);
     }
