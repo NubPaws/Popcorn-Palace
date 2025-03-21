@@ -2,9 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { DataSource } from 'typeorm';
+import { getDataSourceToken } from '@nestjs/typeorm';
+import { Movie } from '../src/movies/entities/movie.entity';
 
 describe('Movies API (e2e)', () => {
   let app: INestApplication;
+  let dataSource: DataSource;
 
   const testMovie = {
     title: 'Sample Movie Title 1',
@@ -21,6 +25,9 @@ describe('Movies API (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    dataSource = moduleFixture.get<DataSource>(getDataSourceToken());
+    await dataSource.getRepository(Movie).delete({});
   });
 
   afterAll(async () => {
