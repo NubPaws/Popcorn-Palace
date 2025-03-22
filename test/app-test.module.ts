@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { MoviesModule } from './movies/movies.module';
-import { ShowtimesModule } from './showtimes/showtimes.module';
-import { BookingsModule } from './booking/bookings.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { MoviesModule } from '../src/movies/movies.module';
+import { ShowtimesModule } from '../src/showtimes/showtimes.module';
+import { BookingsModule } from '../src/booking/bookings.module';
+import { AppController } from '../src/app.controller';
+import { AppService } from '../src/app.service';
 
 @Module({
   imports: [
@@ -19,9 +19,10 @@ import { BookingsModule } from './booking/bookings.module';
       username: process.env.DATABASE_USER || 'popcorn-palace',
       password: process.env.DATABASE_PASSWORD || 'popcorn-palace',
       database: process.env.DATABASE_NAME || 'popcorn-palace',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [__dirname + '/../src/**/*.entity.{ts,js}'],
       autoLoadEntities: true,
       synchronize: true,
+      dropSchema: true,
     }),
     MoviesModule,
     ShowtimesModule,
@@ -30,4 +31,4 @@ import { BookingsModule } from './booking/bookings.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppTestModule {}

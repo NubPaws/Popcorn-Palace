@@ -1,12 +1,12 @@
 import { applyDecorators } from '@nestjs/common';
 import {
-  IsDecimal,
   IsInt,
   IsNotEmpty,
   IsPositive,
   IsString,
   Max,
   Min,
+  IsNumber,
 } from 'class-validator';
 
 export function IsValidString(propertyName: string = 'Property') {
@@ -18,7 +18,7 @@ export function IsValidString(propertyName: string = 'Property') {
 
 export function IsInRange(propertyName: string, min: number, max: number) {
   return applyDecorators(
-    IsDecimal({}, { message: `${propertyName} must be a decimal number.` }),
+    IsNumber({}, { message: `${propertyName} must be a decimal number.` }),
     Min(min, {
       message: `${propertyName} must be greater than or equal to${min}.`,
     }),
@@ -32,5 +32,11 @@ export function IsPositiveInteger(propertyName: string) {
   return applyDecorators(
     IsInt({ message: `${propertyName} must be a whole number.` }),
     IsPositive({ message: `${propertyName} must be a positive number.` }),
+  );
+}
+
+export function IsNonNegative(propertyName: string) {
+  return applyDecorators(
+    Min(0, { message: `${propertyName} must be greater than or equal to 0.` }),
   );
 }

@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { Showtime } from '../showtimes/showtime.entity';
 
-@Entity()
+@Entity('booking')
 export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: string;

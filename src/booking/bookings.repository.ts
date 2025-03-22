@@ -11,7 +11,10 @@ export class BookingsRepository {
   ) {}
 
   async isSeatTaken(showtimeId: number, seatNumber: number): Promise<boolean> {
-    return this.repo.exists({ where: { showtimeId, seatNumber } });
+    return this.repo.exists({
+      where: { showtime: { id: showtimeId }, seatNumber },
+      relations: ['showtime'],
+    });
   }
 
   async createBooking(booking: Booking): Promise<Booking> {
