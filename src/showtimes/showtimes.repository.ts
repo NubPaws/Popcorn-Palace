@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Showtime } from './showtime.entity';
 import { LessThanOrEqual, MoreThanOrEqual, Not, Repository } from 'typeorm';
-import { deleteEmpties } from '../utils';
+import { deleteEmpties } from '../utilities/utils';
 
 @Injectable()
 export class ShowtimesRepository {

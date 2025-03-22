@@ -4,7 +4,7 @@ import {
   IsInRange,
   IsPositiveInteger,
   IsValidString,
-} from '../validation-utils';
+} from '../utilities/validation-utils';
 
 export class CreateMovieDto {
   @IsValidString('Movie title')

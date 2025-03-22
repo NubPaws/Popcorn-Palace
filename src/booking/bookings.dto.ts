@@ -1,5 +1,5 @@
 import { IsUUID } from 'class-validator';
-import { IsPositiveInteger } from '../validation-utils';
+import { IsPositiveInteger } from '../utilities/validation-utils';
 import { Booking } from './booking.entity';
 
 export class CreateBookingDto {

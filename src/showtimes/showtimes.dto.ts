@@ -3,7 +3,7 @@ import {
   IsNonNegative,
   IsPositiveInteger,
   IsValidString,
-} from '../validation-utils';
+} from '../utilities/validation-utils';
 import { Showtime } from './showtime.entity';
 
 export class CreateShowtimeDto {
