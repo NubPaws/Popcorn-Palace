@@ -5,7 +5,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Showtime } from './entities/showtime.entity';
-import { LessThan, MoreThan, Not, Repository } from 'typeorm';
+import { LessThanOrEqual, MoreThanOrEqual, Not, Repository } from 'typeorm';
+import { deleteEmpties } from '../utils';
 
 @Injectable()
 export class ShowtimesRepository {
@@ -24,10 +25,10 @@ export class ShowtimesRepository {
   async doesTimeConflict(showtime: Showtime): Promise<boolean> {
     return this.repo.exists({
       where: {
-        id: Not(showtime.id),
+        id: Not(showtime.id ?? -1),
         theater: showtime.theater,
-        startTime: LessThan(showtime.endTime),
-        endTime: MoreThan(showtime.startTime),
+        startTime: LessThanOrEqual(showtime.endTime),
+        endTime: MoreThanOrEqual(showtime.startTime),
       },
     });
   }
@@ -51,6 +52,8 @@ export class ShowtimesRepository {
       throw new NotFoundException(`Showtime #${showtimeId} does not exist`);
     }
 
+    deleteEmpties(updates);
+
     Object.assign(showtime, updates);
 
     if (await this.doesTimeConflict(showtime)) {
@@ -59,7 +62,7 @@ export class ShowtimesRepository {
       );
     }
 
-    return this.addShowtime(showtime);
+    return this.repo.save(showtime);
   }
 
   async deleteShowtime(showtimeId: number): Promise<void> {

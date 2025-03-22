@@ -35,6 +35,7 @@ export class Showtime {
   endTime: Date;
 
   @OneToMany(() => Booking, (booking) => booking.showtime, {
+    cascade: true,
     onDelete: 'CASCADE',
   })
   bookings: Booking[];

@@ -1,150 +1,197 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ConflictException, NotFoundException } from '@nestjs/common';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { MoviesRepository } from '../movies.repository';
 import { Movie } from '../entities/movie.entity';
+import { Test } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('MoviesRepository', () => {
   let moviesRepository: MoviesRepository;
-
-  // A sample movie for testing
-  const mockMovie: Movie = new Movie({
-    title: 'Test Movie',
-    genre: 'Drama',
-    duration: 120,
-    rating: 8.5,
-    releaseYear: 2020,
-  });
-
-  // Create a simple mock for the TypeORM Repository
-  const repositoryMock = {
-    findOneBy: jest.fn(),
-    countBy: jest.fn(),
-    find: jest.fn(),
-    save: jest.fn(),
-    delete: jest.fn(),
-  };
+  let repo: Repository<Movie>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       providers: [
         MoviesRepository,
         {
           provide: getRepositoryToken(Movie),
-          useValue: repositoryMock,
+          useClass: Repository,
         },
       ],
     }).compile();
 
     moviesRepository = module.get<MoviesRepository>(MoviesRepository);
-  });
+    repo = module.get<Repository<Movie>>(getRepositoryToken(Movie));
 
-  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('getMovie', () => {
-    it('should return a movie if found', async () => {
-      repositoryMock.findOneBy.mockResolvedValue(mockMovie);
-      const movie = await moviesRepository.getByTitle('Test Movie');
-      expect(movie).toEqual(mockMovie);
-      expect(repositoryMock.findOneBy).toHaveBeenCalledWith({
-        title: 'Test Movie',
-      });
+  describe('getByTitle', () => {
+    it('should return a movie when found', async () => {
+      const movie = new Movie();
+      movie.id = 1;
+      movie.title = 'Test Movie';
+      const spy = jest.spyOn(repo, 'findOneBy').mockResolvedValue(movie);
+
+      const result = await moviesRepository.getByTitle('Test Movie');
+      expect(result).toEqual(movie);
+      expect(spy).toHaveBeenCalled();
     });
 
-    it('should return null if movie is not found', async () => {
-      repositoryMock.findOneBy.mockResolvedValue(null);
-      const movie = await moviesRepository.getByTitle('Nonexistent');
-      expect(movie).toBeNull();
+    it('should return null when not found', async () => {
+      jest.spyOn(repo, 'findOneBy').mockResolvedValue(null);
+
+      const result = await moviesRepository.getByTitle('Random title here');
+      expect(result).toBeNull();
     });
   });
 
-  describe('movieExists', () => {
+  describe('getById', () => {
+    it('should return a movie when found', async () => {
+      const movie = new Movie();
+      movie.id = 1;
+      jest.spyOn(repo, 'findOneBy').mockResolvedValue(movie);
+
+      const result = await moviesRepository.getById(1);
+      expect(result).toEqual(movie);
+    });
+
+    it('should return null when not found', async () => {
+      jest.spyOn(repo, 'findOneBy').mockResolvedValue(null);
+
+      const result = await moviesRepository.getById(999);
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('existsByTitle', () => {
     it('should return true if movie exists', async () => {
-      repositoryMock.countBy.mockResolvedValue(1);
-      const exists = await moviesRepository.existsByTitle('Test Movie');
-      expect(exists).toBe(true);
+      jest.spyOn(repo, 'countBy').mockResolvedValue(1);
+
+      const result = await moviesRepository.existsByTitle('Test Movie');
+      expect(result).toBe(true);
     });
 
     it('should return false if movie does not exist', async () => {
-      repositoryMock.countBy.mockResolvedValue(0);
-      const exists = await moviesRepository.existsByTitle('Nonexistent');
-      expect(exists).toBe(false);
+      jest.spyOn(repo, 'countBy').mockResolvedValue(0);
+
+      const result = await moviesRepository.existsByTitle('Random movie');
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('existsById', () => {
+    it('should return true if movie exists', async () => {
+      jest.spyOn(repo, 'countBy').mockResolvedValue(1);
+
+      const result = await moviesRepository.existsById(1);
+      expect(result).toBe(true);
+    });
+
+    it('should return false if movie does not exist', async () => {
+      jest.spyOn(repo, 'countBy').mockResolvedValue(0);
+
+      const result = await moviesRepository.existsById(999);
+      expect(result).toBe(false);
     });
   });
 
   describe('findAll', () => {
     it('should return an array of movies', async () => {
-      repositoryMock.find.mockResolvedValue([mockMovie]);
-      const movies = await moviesRepository.findAll();
-      expect(movies).toEqual([mockMovie]);
-      expect(repositoryMock.find).toHaveBeenCalled();
+      const moviesArray = [new Movie(), new Movie()];
+      jest.spyOn(repo, 'find').mockResolvedValue(moviesArray);
+
+      const result = await moviesRepository.findAll();
+      expect(result).toEqual(moviesArray);
     });
   });
 
   describe('saveMovie', () => {
-    it('should save a new movie when it does not exist', async () => {
-      repositoryMock.countBy.mockResolvedValue(0);
-      repositoryMock.save.mockResolvedValue(mockMovie);
-      const movie = await moviesRepository.saveMovie(mockMovie);
-      expect(movie).toEqual(mockMovie);
-      expect(repositoryMock.save).toHaveBeenCalledWith(mockMovie);
+    it('should save a new movie', async () => {
+      const movie = new Movie();
+      movie.title = 'Unique Movie';
+
+      jest.spyOn(moviesRepository, 'existsByTitle').mockResolvedValue(false);
+      jest.spyOn(repo, 'save').mockResolvedValue(movie);
+
+      const result = await moviesRepository.saveMovie(movie);
+      expect(result).toEqual(movie);
     });
 
-    it('should throw ConflictException if movie already exists', async () => {
-      repositoryMock.countBy.mockResolvedValue(1);
-      await expect(moviesRepository.saveMovie(mockMovie)).rejects.toThrow(
+    it('should throw ConflictException if title already exists', async () => {
+      const movie = new Movie();
+      movie.title = 'Duplicate Movie';
+      jest.spyOn(moviesRepository, 'existsByTitle').mockResolvedValue(true);
+
+      await expect(moviesRepository.saveMovie(movie)).rejects.toThrow(
         ConflictException,
       );
     });
   });
 
   describe('updateMovie', () => {
-    it('should update a movie if it exists', async () => {
-      repositoryMock.findOneBy.mockResolvedValue(mockMovie);
-      // New title not causing a conflict:
-      repositoryMock.countBy.mockResolvedValue(0);
-      repositoryMock.save.mockResolvedValue({ ...mockMovie, genre: 'Comedy' });
+    it('should update a movie', async () => {
+      const movie = new Movie();
+      movie.id = 1;
+      movie.title = 'Original Title';
 
-      const updated = await moviesRepository.updateMovie('Test Movie', {
-        genre: 'Comedy',
+      jest.spyOn(moviesRepository, 'getByTitle').mockResolvedValue(movie);
+      jest.spyOn(moviesRepository, 'existsByTitle').mockResolvedValue(false);
+      jest
+        .spyOn(repo, 'save')
+        .mockResolvedValue({ ...movie, title: 'Updated Title' });
+
+      const result = await moviesRepository.updateMovie('Original Title', {
+        title: 'Updated Title',
       });
-      expect(updated.genre).toEqual('Comedy');
-      expect(repositoryMock.save).toHaveBeenCalled();
+      expect(result.title).toEqual('Updated Title');
     });
 
-    it('should throw NotFoundException if movie does not exist', async () => {
-      repositoryMock.findOneBy.mockResolvedValue(null);
+    it('should throw NotFoundException if movie not found', async () => {
+      jest.spyOn(moviesRepository, 'getByTitle').mockResolvedValue(null);
+
       await expect(
-        moviesRepository.updateMovie('Nonexistent', { genre: 'Comedy' }),
+        moviesRepository.updateMovie('Random movie', { title: 'New Title' }),
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw ConflictException if new title already exists', async () => {
-      repositoryMock.findOneBy.mockResolvedValue(mockMovie);
-      // Simulate that the new title already exists
-      repositoryMock.countBy.mockResolvedValue(1);
+    it('should throw ConflictException if new title exists', async () => {
+      const movie = new Movie();
+      movie.id = 1;
+      movie.title = 'Original Title';
+
+      jest.spyOn(moviesRepository, 'getByTitle').mockResolvedValue(movie);
+      jest.spyOn(moviesRepository, 'existsByTitle').mockResolvedValue(true);
+
       await expect(
-        moviesRepository.updateMovie('Test Movie', { title: 'Another Movie' }),
+        moviesRepository.updateMovie('Original Title', {
+          title: 'Duplicate Title',
+        }),
       ).rejects.toThrow(ConflictException);
     });
   });
 
   describe('deleteMovie', () => {
     it('should delete a movie if it exists', async () => {
-      repositoryMock.findOneBy.mockResolvedValue(mockMovie);
-      repositoryMock.delete.mockResolvedValue({ affected: 1 });
+      const movie = new Movie();
+      movie.id = 1;
+      movie.title = 'Test Movie';
+
+      jest.spyOn(moviesRepository, 'getByTitle').mockResolvedValue(movie);
+      const deleteSpy = jest
+        .spyOn(repo, 'delete')
+        .mockResolvedValue({ affected: 1 } as any);
+
       await moviesRepository.deleteMovie('Test Movie');
-      expect(repositoryMock.delete).toHaveBeenCalledWith({
-        title: 'Test Movie',
-      });
+      expect(deleteSpy).toHaveBeenCalledWith({ title: 'Test Movie' });
     });
 
-    it('should do nothing if movie does not exist', async () => {
-      repositoryMock.findOneBy.mockResolvedValue(null);
-      const result = await moviesRepository.deleteMovie('Nonexistent');
-      expect(result).toBeUndefined();
+    it('should not throw error if movie does not exist', async () => {
+      jest.spyOn(moviesRepository, 'getByTitle').mockResolvedValue(null);
+
+      await expect(
+        moviesRepository.deleteMovie('Random movie'),
+      ).resolves.not.toThrow();
     });
   });
 });

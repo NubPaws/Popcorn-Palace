@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ShowtimesRepository } from './showtimes.repository';
 import { Showtime } from './entities/showtime.entity';
 import { MoviesRepository } from '../movies/movies.repository';
@@ -12,7 +16,12 @@ export class ShowtimesService {
   ) {}
 
   async find(showtimeId: number): Promise<Showtime | null> {
-    return await this.showtimesRepository.getShowtime(showtimeId);
+    const showtime = await this.showtimesRepository.getShowtime(showtimeId);
+    if (!showtime) {
+      throw new NotFoundException(`Showtime #${showtimeId} does not exist`);
+    }
+
+    return showtime;
   }
 
   async add(createShowtimeDto: CreateShowtimeDto): Promise<Showtime> {
@@ -61,6 +70,6 @@ export class ShowtimesService {
   }
 
   async remove(showtimeId: number): Promise<void> {
-    this.showtimesRepository.deleteShowtime(showtimeId);
+    await this.showtimesRepository.deleteShowtime(showtimeId);
   }
 }

@@ -5,17 +5,9 @@ import { Movie } from '../entities/movie.entity';
 import { CreateMovieDto, UpdateMovieDto } from '../movies.dto';
 
 describe('MoviesController', () => {
-  let moviesController: MoviesController;
+  let controller: MoviesController;
 
-  const mockMovie: Movie = new Movie({
-    title: 'Test Movie',
-    genre: 'Drama',
-    duration: 120,
-    rating: 8.5,
-    releaseYear: 2020,
-  });
-
-  const moviesServiceMock = {
+  const mockMoviesService = {
     findAll: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
@@ -25,75 +17,97 @@ describe('MoviesController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MoviesController],
-      providers: [
-        {
-          provide: MoviesService,
-          useValue: moviesServiceMock,
-        },
-      ],
+      providers: [{ provide: MoviesService, useValue: mockMoviesService }],
     }).compile();
 
-    moviesController = module.get<MoviesController>(MoviesController);
-  });
+    controller = module.get<MoviesController>(MoviesController);
 
-  afterAll(() => {
     jest.clearAllMocks();
   });
 
   describe('findAll', () => {
-    it('should return an array of movies', async () => {
-      moviesServiceMock.findAll.mockResolvedValue([mockMovie]);
-      const movies = await moviesController.findAll();
+    it('should return an array of movies in response DTO format', async () => {
+      const movie = new Movie();
+      movie.id = 1;
+      movie.title = 'Test Movie';
+      movie.genre = 'Action';
+      movie.duration = 120;
+      movie.rating = 4.5;
+      movie.releaseYear = 2021;
 
-      expect(movies).toEqual([mockMovie]);
-      expect(moviesServiceMock.findAll).toHaveBeenCalled();
+      mockMoviesService.findAll.mockResolvedValue([movie]);
+
+      const result = await controller.findAll();
+      expect(result).toEqual([
+        {
+          id: movie.id,
+          title: movie.title,
+          genre: movie.genre,
+          duration: movie.duration,
+          rating: movie.rating,
+          releaseYear: movie.releaseYear,
+        },
+      ]);
     });
   });
 
   describe('create', () => {
-    it('should create a movie', async () => {
-      moviesServiceMock.create.mockResolvedValue(mockMovie);
-      const createMovieDto: CreateMovieDto = {
-        title: 'Test Movie',
-        genre: 'Drama',
-        duration: 120,
-        rating: 8.5,
-        releaseYear: 2020,
+    it('should create and return a movie response DTO', async () => {
+      const createDto: CreateMovieDto = {
+        title: 'New Movie',
+        genre: 'Comedy',
+        duration: 90,
+        rating: 4,
+        releaseYear: 2022,
       };
 
-      const result = await moviesController.create(createMovieDto);
-      expect(result).toEqual(mockMovie);
-      // Consider create converts dto to Movie object.
-      expect(moviesServiceMock.create).toHaveBeenCalledWith(expect.any(Object));
+      const movie = Object.assign(new Movie(), createDto);
+      movie.id = 1;
+      mockMoviesService.create.mockResolvedValue(movie);
+
+      const result = await controller.create(createDto);
+      expect(result).toEqual({
+        id: movie.id,
+        title: movie.title,
+        genre: movie.genre,
+        duration: movie.duration,
+        rating: movie.rating,
+        releaseYear: movie.releaseYear,
+      });
     });
   });
 
   describe('update', () => {
-    it('should update a movie', async () => {
-      moviesServiceMock.update.mockResolvedValue({
-        ...mockMovie,
-        genre: 'Comedy',
+    it('should update and return a movie response DTO', async () => {
+      const updateDto: UpdateMovieDto = { title: 'Updated Title' };
+      const movie = new Movie();
+      movie.id = 1;
+      movie.title = 'Updated Title';
+      movie.genre = 'Action';
+      movie.duration = 120;
+      movie.rating = 4.5;
+      movie.releaseYear = 2021;
+
+      mockMoviesService.update.mockResolvedValue(movie);
+
+      const result = await controller.update('Test Movie', updateDto);
+      expect(result).toEqual({
+        id: movie.id,
+        title: movie.title,
+        genre: movie.genre,
+        duration: movie.duration,
+        rating: movie.rating,
+        releaseYear: movie.releaseYear,
       });
-
-      const updateMovieDto: UpdateMovieDto = { genre: 'Comedy' };
-      const result = await moviesController.update(
-        'Test Movie',
-        updateMovieDto,
-      );
-
-      expect(result.genre).toEqual('Comedy');
-      expect(moviesServiceMock.update).toHaveBeenCalledWith(
-        'Test Movie',
-        updateMovieDto,
-      );
     });
   });
 
   describe('remove', () => {
-    it('should remove a movie', async () => {
-      moviesServiceMock.remove.mockResolvedValue({ affected: 1 });
-      await moviesController.remove('Test Movie');
-      expect(moviesServiceMock.remove).toHaveBeenCalledWith('Test Movie');
+    it('should call remove on the service', async () => {
+      mockMoviesService.remove.mockResolvedValue(undefined);
+
+      await controller.remove('Test Movie');
+      expect(mockMoviesService.remove).toHaveBeenCalledWith('Test Movie');
     });
   });
 });

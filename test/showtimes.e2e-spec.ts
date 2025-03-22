@@ -1,20 +1,14 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { Movie } from '../src/movies/entities/movie.entity';
-import { CreateMovieDto } from '../src/movies/movies.dto';
-import { Showtime } from '../src/showtimes/entities/showtime.entity';
-import { CreateShowtimeDto } from '../src/showtimes/showtimes.dto';
-import { DataSource } from 'typeorm';
-import { getDataSourceToken } from '@nestjs/typeorm';
+import * as request from 'supertest';
+
+const toMillis = (hrs: number) => hrs * 60 * 60 * 1000;
 
 describe('Showtimes API (e2e)', () => {
   let app: INestApplication;
-  let dataSource: DataSource;
-
-  let movie: Movie;
-  let showtime: Showtime;
+  let movieId: number;
+  let showtimeId: number;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -22,53 +16,78 @@ describe('Showtimes API (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
-    dataSource = moduleFixture.get<DataSource>(getDataSourceToken());
-    // Clear the relevant database that we affected.
-    await dataSource.getRepository(Movie).delete({});
-    await dataSource.getRepository(Showtime).delete({});
-
-    // Create a movie and a showtime so that we can use them later.
-    const createMovieDto: CreateMovieDto = {
-      title: `Movie 1`,
-      genre: 'Action',
-      duration: 120,
-      rating: 9.2,
-      releaseYear: 2025,
+    const createMovieDto = {
+      title: 'Interstellar',
+      genre: 'Sci-Fi',
+      duration: 169,
+      rating: 8.6,
+      releaseYear: 2014,
     };
 
-    const movieRes = await request(app.getHttpServer())
+    const movieResponse = await request(app.getHttpServer())
       .post('/movies')
       .send(createMovieDto)
       .expect(200);
 
-    movie = movieRes.body;
-
-    const createShowtimeDto: CreateShowtimeDto = {
-      theater: 'Theater 0',
-      movieId: movie.id,
-      price: 99.99,
-      startTime: '2025-03-21T14:00:00.000Z',
-      endTime: '2025-03-21T16:00:00.000Z',
-    };
-
-    const showtimeRes = await request(app.getHttpServer())
-      .post('/showtimes')
-      .send(createShowtimeDto)
-      .expect(200);
-    showtime = showtimeRes.body;
+    movieId = movieResponse.body.id;
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  it('should successfully return a showtime', async () => {
+  it('/showtimes (POST) - Add a showtime', async () => {
+    const now = Date.now();
+    const createShowtimeDto = {
+      movieId: movieId,
+      price: 12.5,
+      theater: 'Theater 1',
+      startTime: new Date(now + toMillis(1)).toISOString(),
+      endTime: new Date(now + toMillis(2)).toISOString(),
+    };
+
     const response = await request(app.getHttpServer())
-      .get(`/showtimes/${showtime.id}`)
+      .post('/showtimes')
+      .send(createShowtimeDto)
       .expect(200);
 
-    expect(response.body).toMatchObject(showtime);
+    expect(response.body).toHaveProperty('id');
+    expect(response.body.movieId).toEqual(movieId);
+    showtimeId = response.body.id;
+  });
+
+  it('/showtimes/:showtimeId (GET) - Retrieve a showtime', async () => {
+    const response = await request(app.getHttpServer())
+      .get(`/showtimes/${showtimeId}`)
+      .expect(200);
+
+    expect(response.body.id).toEqual(showtimeId);
+    expect(response.body.movieId).toEqual(movieId);
+  });
+
+  it('/showtimes/update/:showtimeId (POST) - Update a showtime', async () => {
+    const updateShowtimeDto = {
+      price: 15.0,
+    };
+
+    const response = await request(app.getHttpServer())
+      .post(`/showtimes/update/${showtimeId}`)
+      .send(updateShowtimeDto)
+      .expect(200);
+
+    expect(response.body.price).toEqual(updateShowtimeDto.price);
+  });
+
+  it('/showtimes/:showtimeId (DELETE) - Remove a showtime', async () => {
+    await request(app.getHttpServer())
+      .delete(`/showtimes/${showtimeId}`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .get(`/showtimes/${showtimeId}`)
+      .expect(404);
   });
 });
