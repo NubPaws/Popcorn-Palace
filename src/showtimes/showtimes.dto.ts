@@ -1,10 +1,27 @@
+import { IsDateString } from 'class-validator';
+import { IsPositiveInteger, IsValidString } from '../validation-utils';
 import { Showtime } from './showtime.entity';
 
 export class CreateShowtimeDto {
+  @IsPositiveInteger('Showtime price')
   price: number;
+
+  @IsPositiveInteger('Showtime movie ID')
   movieId: number;
+
+  @IsValidString('Showtime theater')
   theater: string;
+
+  @IsDateString(
+    { strictSeparator: true, strict: true },
+    { message: 'Showtime start time must be a datetime string.' },
+  )
   startTime: string;
+
+  @IsDateString(
+    { strictSeparator: true, strict: true },
+    { message: 'Showtime end time must be a datetime string.' },
+  )
   endTime: string;
 }
 

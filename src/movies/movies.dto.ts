@@ -1,6 +1,10 @@
-import { IsInt, IsPositive } from 'class-validator';
+import { IsInt } from 'class-validator';
 import { Movie } from './movie.entity';
-import { IsInRange, IsValidString } from '../validation-utils';
+import {
+  IsInRange,
+  IsPositiveInteger,
+  IsValidString,
+} from '../validation-utils';
 
 export class CreateMovieDto {
   @IsValidString('Movie title')
@@ -9,8 +13,7 @@ export class CreateMovieDto {
   @IsValidString('Movie genre')
   genre: string;
 
-  @IsInt({ message: 'Movie duration must be a whole number.' })
-  @IsPositive({ message: 'Movie duration must be a positive number.' })
+  @IsPositiveInteger('Movie duration')
   duration: number;
 
   @IsInRange('Movie rating', 0, 10)
