@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseIntPipe,
   Post,
 } from '@nestjs/common';
 import {
@@ -21,7 +22,7 @@ export class ShowtimesController {
   @Get(':showtimeId')
   @HttpCode(200)
   async find(
-    @Param('showtimeId') showtimeId: number,
+    @Param('showtimeId', ParseIntPipe) showtimeId: number,
   ): Promise<ResponseShowtimeDto> {
     const showtime = await this.showtimesService.find(showtimeId);
     return new ResponseShowtimeDto(showtime);
@@ -39,7 +40,7 @@ export class ShowtimesController {
   @Post('update/:showtimeId')
   @HttpCode(200)
   async update(
-    @Param('showtimeId') showtimeId: number,
+    @Param('showtimeId', ParseIntPipe) showtimeId: number,
     @Body() updateShowtimeDto: UpdateShowtimeDto,
   ): Promise<ResponseShowtimeDto> {
     const showtime = await this.showtimesService.update(
@@ -51,7 +52,9 @@ export class ShowtimesController {
 
   @Delete(':showtimeId')
   @HttpCode(200)
-  async remove(@Param('showtimeId') showtimeId: number): Promise<void> {
+  async remove(
+    @Param('showtimeId', ParseIntPipe) showtimeId: number,
+  ): Promise<void> {
     await this.showtimesService.remove(showtimeId);
   }
 }

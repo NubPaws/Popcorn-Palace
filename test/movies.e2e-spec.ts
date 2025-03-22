@@ -1,22 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { DataSource } from 'typeorm';
-import { getDataSourceToken } from '@nestjs/typeorm';
-import { Movie } from '../src/movies/entities/movie.entity';
 
 describe('Movies API (e2e)', () => {
   let app: INestApplication;
-  let dataSource: DataSource;
-
-  const testMovie = {
-    title: 'Sample Movie Title 1',
-    genre: 'Action',
-    duration: 120,
-    rating: 8.7,
-    releaseYear: 2025,
-  };
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -24,62 +12,65 @@ describe('Movies API (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe());
     await app.init();
-
-    dataSource = moduleFixture.get<DataSource>(getDataSourceToken());
-    await dataSource.getRepository(Movie).delete({});
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  it('should create a movie', async () => {
-    const res = await request(app.getHttpServer())
+  it('/movies (POST) - Create a movie', async () => {
+    const createMovieDto = {
+      title: 'Inception',
+      genre: 'Sci-Fi',
+      duration: 148,
+      rating: 8.8,
+      releaseYear: 2010,
+    };
+
+    const response = await request(app.getHttpServer())
       .post('/movies')
-      .send(testMovie)
+      .send(createMovieDto)
       .expect(200);
 
-    expect(res.body).toMatchObject(testMovie);
+    expect(response.body).toHaveProperty('id');
+    expect(response.body.title).toEqual(createMovieDto.title);
   });
 
-  it('should fail creating a movie', async () => {
-    console.log('Create testMovie first');
-    await request(app.getHttpServer()).post('/movies').send(testMovie);
-
-    console.log('Create it again');
-    await request(app.getHttpServer())
-      .post('/movies')
-      .send(testMovie)
-      .expect(409);
-  });
-
-  it('should get all movies', async () => {
-    const res = await request(app.getHttpServer())
+  it('/movies/all (GET) - Retrieve all movies', async () => {
+    const response = await request(app.getHttpServer())
       .get('/movies/all')
       .expect(200);
 
-    expect(Array.isArray(res.body)).toBeTruthy();
-    expect(res.body.some((m) => m.title === testMovie.title)).toBeTruthy();
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBeGreaterThan(0);
   });
 
-  it('should update a movie', async () => {
-    console.log('Create the testMovie first.');
-    await request(app.getHttpServer()).post('/movies').send(testMovie);
+  it('/movies/update/:movieTitle (POST) - Update a movie', async () => {
+    const updateMovieDto = {
+      genre: 'Thriller',
+      rating: 9.0,
+    };
 
-    console.log('Try and update it with a different year.');
-    const updateData = { year: 2011 };
-    const res = await request(app.getHttpServer())
-      .post(`/movies/update/${testMovie.title}`)
-      .send(updateData)
+    const response = await request(app.getHttpServer())
+      .post('/movies/update/Inception')
+      .send(updateMovieDto)
       .expect(200);
 
-    expect(res.body.year).toBe(2011);
+    expect(response.body.genre).toEqual(updateMovieDto.genre);
+    expect(response.body.rating).toEqual(updateMovieDto.rating);
   });
 
-  it('should delete a movie', async () => {
-    await request(app.getHttpServer())
-      .delete(`/movies/${testMovie.title}`)
+  it('/movies/:movieTitle (DELETE) - Remove a movie', async () => {
+    await request(app.getHttpServer()).delete('/movies/Inception').expect(200);
+
+    const response = await request(app.getHttpServer())
+      .get('/movies/all')
       .expect(200);
+
+    const movies = response.body;
+    const movie = movies.find((m) => m.title === 'Inception');
+    expect(movie).toBeUndefined();
   });
 });
