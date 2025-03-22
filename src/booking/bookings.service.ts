@@ -11,6 +11,13 @@ export class BookingsService {
     private readonly showtimesRepository: ShowtimesRepository,
   ) {}
 
+  /**
+   * Books a seat for a given showtime after validating availability.
+   *
+   * @param createBookingDto - DTO containing booking details.
+   * @returns The newly created booking entity.
+   * @throws BadRequestException if the showtime does not exist.
+   */
   async bookSeat(createBookingDto: CreateBookingDto): Promise<Booking> {
     const { seatNumber, showtimeId, userId } = createBookingDto;
 

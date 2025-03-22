@@ -10,6 +10,13 @@ export class BookingsRepository {
     private readonly repo: Repository<Booking>,
   ) {}
 
+  /**
+   * Checks if a specific seat is already booked for a given showtime.
+   *
+   * @param showtimeId - ID of the showtime.
+   * @param seatNumber - Seat number to check.
+   * @returns True if the seat is taken, false otherwise.
+   */
   async isSeatTaken(showtimeId: number, seatNumber: number): Promise<boolean> {
     return this.repo.exists({
       where: { showtime: { id: showtimeId }, seatNumber },
@@ -17,6 +24,13 @@ export class BookingsRepository {
     });
   }
 
+  /**
+   * Creates a new booking if the seat is available.
+   *
+   * @param booking - The booking entity to persist.
+   * @returns The saved booking entity.
+   * @throws ConflictException if the seat is already taken.
+   */
   async createBooking(booking: Booking): Promise<Booking> {
     const { showtime, seatNumber } = booking;
     if (await this.isSeatTaken(showtime.id, seatNumber)) {

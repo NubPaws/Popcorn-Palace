@@ -6,6 +6,12 @@ import { BookingsService } from './bookings.service';
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
+  /**
+   * Creates a new seat booking for a given showtime.
+   *
+   * @param createBookingDto - DTO containing booking details (seat, showtime, user).
+   * @returns The created booking wrapped in a response DTO.
+   */
   @Post()
   @HttpCode(200)
   async addBooking(
