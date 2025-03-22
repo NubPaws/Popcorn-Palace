@@ -15,6 +15,13 @@ export class ShowtimesService {
     private readonly moviesRepository: MoviesRepository,
   ) {}
 
+  /**
+   * Retrieves a showtime by its ID.
+   *
+   * @param showtimeId The ID of the showtime to retrieve.
+   * @returns The found showtime entity.
+   * @throws NotFoundException if the showtime does not exist.
+   */
   async find(showtimeId: number): Promise<Showtime | null> {
     const showtime = await this.showtimesRepository.getShowtime(showtimeId);
     if (!showtime) {
@@ -24,6 +31,17 @@ export class ShowtimesService {
     return showtime;
   }
 
+  /**
+   * Adds a new showtime.
+   *
+   * Validates that:
+   * The associated movie exists.
+   * The start time is before the end time.
+   *
+   * @param createShowtimeDto Data Transfer Object containing the showtime details.
+   * @returns The newly created showtime entity.
+   * @throws BadRequestException if the movie does not exist or the time is invalid.
+   */
   async add(createShowtimeDto: CreateShowtimeDto): Promise<Showtime> {
     const { movieId, price, theater, startTime, endTime } = createShowtimeDto;
 
@@ -52,6 +70,17 @@ export class ShowtimesService {
     return this.showtimesRepository.addShowtime(showtime);
   }
 
+  /**
+   * Updates an existing showtime by ID.
+   *
+   * Optionally updates any of the showtime's attributes.
+   * Ensures that if a new movie ID is provided, the movie exists.
+   *
+   * @param showtimeId The ID of the showtime to update.
+   * @param updatesDto DTO containing the updated fields.
+   * @returns The updated showtime entity.
+   * @throws BadRequestException if the new movie ID does not correspond to an existing movie.
+   */
   async update(
     showtimeId: number,
     updatesDto: UpdateShowtimeDto,
@@ -76,6 +105,11 @@ export class ShowtimesService {
     return this.showtimesRepository.updateShowtime(showtimeId, updates);
   }
 
+  /**
+   * Deletes a showtime by its ID.
+   *
+   * @param showtimeId The ID of the showtime to delete.
+   */
   async remove(showtimeId: number): Promise<void> {
     await this.showtimesRepository.deleteShowtime(showtimeId);
   }

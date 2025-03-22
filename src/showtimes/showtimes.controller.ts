@@ -19,6 +19,12 @@ import { ShowtimesService } from './showtimes.service';
 export class ShowtimesController {
   constructor(private readonly showtimesService: ShowtimesService) {}
 
+  /**
+   * Retrieves a specific showtime by its ID.
+   *
+   * @param showtimeId - ID of the showtime to retrieve.
+   * @returns A response DTO representing the showtime.
+   */
   @Get(':showtimeId')
   @HttpCode(200)
   async find(
@@ -28,6 +34,12 @@ export class ShowtimesController {
     return new ResponseShowtimeDto(showtime);
   }
 
+  /**
+   * Creates a new showtime.
+   *
+   * @param createShowtimeDto - DTO containing the new showtime details.
+   * @returns A response DTO representing the newly created showtime.
+   */
   @Post()
   @HttpCode(200)
   async add(
@@ -37,6 +49,13 @@ export class ShowtimesController {
     return new ResponseShowtimeDto(showtime);
   }
 
+  /**
+   * Updates an existing showtime by its ID.
+   *
+   * @param showtimeId - ID of the showtime to update.
+   * @param updateShowtimeDto - DTO containing the fields to update.
+   * @returns A response DTO representing the updated showtime.
+   */
   @Post('update/:showtimeId')
   @HttpCode(200)
   async update(
@@ -50,6 +69,11 @@ export class ShowtimesController {
     return new ResponseShowtimeDto(showtime);
   }
 
+  /**
+   * Deletes a showtime by its ID.
+   *
+   * @param showtimeId - ID of the showtime to delete.
+   */
   @Delete(':showtimeId')
   @HttpCode(200)
   async remove(
