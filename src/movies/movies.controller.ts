@@ -7,9 +7,8 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
-import { Movie } from './entities/movie.entity';
 import { MoviesService } from './movies.service';
-import { CreateMovieDto, UpdateMovieDto } from './movies.dto';
+import { CreateMovieDto, ResponseMovieDto, UpdateMovieDto } from './movies.dto';
 
 @Controller('movies')
 export class MoviesController {
@@ -17,14 +16,18 @@ export class MoviesController {
 
   @Get('all')
   @HttpCode(200)
-  async findAll(): Promise<Movie[]> {
-    return this.moviesService.findAll();
+  async findAll(): Promise<ResponseMovieDto[]> {
+    const movies = await this.moviesService.findAll();
+    return movies.map((movie) => new ResponseMovieDto(movie));
   }
 
   @Post()
   @HttpCode(200)
-  async create(@Body() createMovieDto: CreateMovieDto): Promise<Movie> {
-    return this.moviesService.create(new Movie(createMovieDto));
+  async create(
+    @Body() createMovieDto: CreateMovieDto,
+  ): Promise<ResponseMovieDto> {
+    const movie = await this.moviesService.create(createMovieDto);
+    return new ResponseMovieDto(movie);
   }
 
   @Post('update/:movieTitle')
@@ -32,13 +35,14 @@ export class MoviesController {
   async update(
     @Param('movieTitle') movieTitle: string,
     @Body() movieUpdate: UpdateMovieDto,
-  ) {
-    return this.moviesService.update(movieTitle, movieUpdate);
+  ): Promise<ResponseMovieDto> {
+    const movie = await this.moviesService.update(movieTitle, movieUpdate);
+    return new ResponseMovieDto(movie);
   }
 
   @Delete(':movieTitle')
   @HttpCode(200)
-  async remove(@Param('movieTitle') movieTitle: string) {
-    return this.moviesService.remove(movieTitle);
+  async remove(@Param('movieTitle') movieTitle: string): Promise<void> {
+    await this.moviesService.remove(movieTitle);
   }
 }
