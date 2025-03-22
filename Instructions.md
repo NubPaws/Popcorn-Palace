@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - **PostgreSQL** - The backend uses PosgreSQL as its database. Ensure you have a running PostgreSQL instance.
-- **Node.js** -- The project uses Node.js for it's platform. Make sure that Node.js is installed (as well as npm).
+- **Node.js** - The project uses Node.js for it's platform. Make sure that Node.js is installed (as well as npm).
 
 ## Installation
 Clone the repository and install the dependencies
