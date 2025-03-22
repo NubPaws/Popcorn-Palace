@@ -2,25 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ShowtimesRepository } from './showtimes.repository';
 import { Showtime } from './entities/showtime.entity';
 import { MoviesRepository } from '../movies/movies.repository';
-import { Movie } from '../movies/entities/movie.entity';
-
-class InvalidStartOrEndTimeException extends BadRequestException {
-  constructor(startTime: Date, endTime: Date, duration: number) {
-    super(
-      `Showtime's startTime (${startTime}) and endTime (${endTime}) ` +
-        `don't match the movie's duration (${duration} minutes).`,
-    );
-  }
-}
-
-function areTimesValid(startTime: Date, endTime: Date, { duration }: Movie) {
-  const movieEndTimeMs = startTime.getTime() + duration * 60 * 1000;
-  const endTimeMs = endTime.getTime();
-
-  console.log(movieEndTimeMs, endTimeMs, startTime, endTime, duration);
-
-  return movieEndTimeMs <= endTimeMs;
-}
+import { CreateShowtimeDto, UpdateShowtimeDto } from './showtimes.dto';
 
 @Injectable()
 export class ShowtimesService {
@@ -30,54 +12,49 @@ export class ShowtimesService {
   ) {}
 
   async find(showtimeId: number): Promise<Showtime | null> {
-    return this.showtimesRepository.getShowtime(showtimeId);
+    return await this.showtimesRepository.getShowtime(showtimeId);
   }
 
-  async add(showtime: Showtime): Promise<Showtime> {
-    const movie = await this.moviesRepository.getMovieById(showtime.movieId);
+  async add(createShowtimeDto: CreateShowtimeDto): Promise<Showtime> {
+    const { movieId, price, theater, startTime, endTime } = createShowtimeDto;
 
-    // Check that the movie exists here.
+    // Check the movie exists.
+    const movie = await this.moviesRepository.getById(movieId);
     if (!movie) {
-      throw new BadRequestException(
-        `Movie #${showtime.movieId} does not exist in the database`,
-      );
+      throw new BadRequestException(`Movie #${movieId} does not exist`);
     }
 
-    // Make sure that the time the show starts and end match with the movie's duration.
-    if (!areTimesValid(showtime.startTime, showtime.endTime, movie)) {
-      throw new InvalidStartOrEndTimeException(
-        showtime.startTime,
-        showtime.endTime,
-        movie.duration,
-      );
-    }
+    const showtime = new Showtime();
+    showtime.price = price;
+    showtime.theater = theater;
+    showtime.movie = movie;
+    showtime.startTime = new Date(startTime);
+    showtime.endTime = new Date(endTime);
 
+    // addShowtime will validate the time. We only need to validate
+    // that the time doesn't collide with other shows.
     return this.showtimesRepository.addShowtime(showtime);
   }
 
   async update(
     showtimeId: number,
-    updates: Partial<Showtime>,
+    updatesDto: UpdateShowtimeDto,
   ): Promise<Showtime> {
-    const showtime = await this.find(showtimeId);
-    if (!showtime) {
-      throw new BadRequestException(`Showtime #${showtimeId} does not exist`);
-    }
+    const { movieId, startTime, endTime } = updatesDto;
+    const updates: Partial<Showtime> = {
+      price: updatesDto.price,
+      movie: updatesDto.movieId
+        ? await this.moviesRepository.getById(movieId)
+        : undefined,
+      theater: updatesDto.theater,
+      startTime: startTime ? new Date(startTime) : undefined,
+      endTime: endTime ? new Date(endTime) : undefined,
+    };
 
-    const movieId = updates.movieId ?? showtime.movieId;
-    const movie = await this.moviesRepository.getMovieById(movieId);
-    if (!movie) {
+    // If the movieId is updated, and the movie doesn't exist (as we already
+    // polled for it before), then fail.
+    if (movieId && !updates.movie) {
       throw new BadRequestException(`Movie #${movieId} does not exist`);
-    }
-
-    const startTime = updates.startTime ?? showtime.startTime;
-    const endTime = updates.endTime ?? showtime.endTime;
-    if (!areTimesValid(startTime, endTime, movie)) {
-      throw new InvalidStartOrEndTimeException(
-        startTime,
-        endTime,
-        movie.duration,
-      );
     }
 
     return this.showtimesRepository.updateShowtime(showtimeId, updates);

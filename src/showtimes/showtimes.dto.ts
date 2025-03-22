@@ -1,3 +1,5 @@
+import { Showtime } from './entities/showtime.entity';
+
 export class CreateShowtimeDto {
   price: number;
   movieId: number;
@@ -15,4 +17,13 @@ export class ResponseShowtimeDto {
   theater: string;
   startTime: string;
   endTime: string;
+
+  constructor(showtime: Showtime) {
+    this.id = showtime.id;
+    this.price = showtime.price;
+    this.movieId = showtime.movieId;
+    this.theater = showtime.theater;
+    this.startTime = showtime.startTime.toISOString();
+    this.endTime = showtime.endTime.toISOString();
+  }
 }

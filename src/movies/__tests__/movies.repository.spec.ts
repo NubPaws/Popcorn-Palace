@@ -46,7 +46,7 @@ describe('MoviesRepository', () => {
   describe('getMovie', () => {
     it('should return a movie if found', async () => {
       repositoryMock.findOneBy.mockResolvedValue(mockMovie);
-      const movie = await moviesRepository.getMovie('Test Movie');
+      const movie = await moviesRepository.getByTitle('Test Movie');
       expect(movie).toEqual(mockMovie);
       expect(repositoryMock.findOneBy).toHaveBeenCalledWith({
         title: 'Test Movie',
@@ -55,7 +55,7 @@ describe('MoviesRepository', () => {
 
     it('should return null if movie is not found', async () => {
       repositoryMock.findOneBy.mockResolvedValue(null);
-      const movie = await moviesRepository.getMovie('Nonexistent');
+      const movie = await moviesRepository.getByTitle('Nonexistent');
       expect(movie).toBeNull();
     });
   });
@@ -63,13 +63,13 @@ describe('MoviesRepository', () => {
   describe('movieExists', () => {
     it('should return true if movie exists', async () => {
       repositoryMock.countBy.mockResolvedValue(1);
-      const exists = await moviesRepository.movieExists('Test Movie');
+      const exists = await moviesRepository.existsByTitle('Test Movie');
       expect(exists).toBe(true);
     });
 
     it('should return false if movie does not exist', async () => {
       repositoryMock.countBy.mockResolvedValue(0);
-      const exists = await moviesRepository.movieExists('Nonexistent');
+      const exists = await moviesRepository.existsByTitle('Nonexistent');
       expect(exists).toBe(false);
     });
   });
