@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Movie } from '../movies/movie.entity';
-import { Booking } from '../../booking/entities/booking.entity';
+import { Booking } from '../booking/booking.entity';
 
 @Entity({ name: 'showtime' })
 export class Showtime {
