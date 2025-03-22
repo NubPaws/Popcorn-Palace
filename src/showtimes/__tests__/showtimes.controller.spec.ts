@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShowtimesController } from '../showtimes.controller';
 import { ShowtimesService } from '../showtimes.service';
-import { Showtime } from '../entities/showtime.entity';
+import { Showtime } from '../showtime.entity';
 import { CreateShowtimeDto, UpdateShowtimeDto } from '../showtimes.dto';
 
 describe('ShowtimesController', () => {

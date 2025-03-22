@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import { MoviesRepository } from '../movies.repository';
-import { Movie } from '../entities/movie.entity';
+import { Movie } from '../movie.entity';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConflictException, NotFoundException } from '@nestjs/common';

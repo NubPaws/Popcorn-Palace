@@ -1,4 +1,4 @@
-import { Movie } from './entities/movie.entity';
+import { Movie } from './movie.entity';
 
 export class CreateMovieDto {
   title: string;

@@ -6,7 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Movie } from '../../movies/entities/movie.entity';
+import { Movie } from '../movies/movie.entity';
 import { Booking } from '../../booking/entities/booking.entity';
 
 @Entity({ name: 'showtime' })

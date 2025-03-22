@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Movie } from './entities/movie.entity';
+import { Movie } from './movie.entity';
 import {
   ConflictException,
   Injectable,

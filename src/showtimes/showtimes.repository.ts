@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Showtime } from './entities/showtime.entity';
+import { Showtime } from './showtime.entity';
 import { LessThanOrEqual, MoreThanOrEqual, Not, Repository } from 'typeorm';
 import { deleteEmpties } from '../utils';
 

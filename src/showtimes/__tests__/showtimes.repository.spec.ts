@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Showtime } from '../entities/showtime.entity';
+import { Showtime } from '../showtime.entity';
 import { ShowtimesRepository } from '../showtimes.repository';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';

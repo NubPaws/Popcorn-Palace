@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MoviesController } from '../movies.controller';
 import { MoviesService } from '../movies.service';
-import { Movie } from '../entities/movie.entity';
+import { Movie } from '../movie.entity';
 import { CreateMovieDto, UpdateMovieDto } from '../movies.dto';
 
 describe('MoviesController', () => {

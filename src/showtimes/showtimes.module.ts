@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Showtime } from './entities/showtime.entity';
+import { Showtime } from './showtime.entity';
 import { ShowtimesController } from './showtimes.controller';
 import { ShowtimesService } from './showtimes.service';
 import { ShowtimesRepository } from './showtimes.repository';

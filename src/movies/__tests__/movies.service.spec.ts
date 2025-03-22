@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MoviesRepository } from '../movies.repository';
 import { MoviesService } from '../movies.service';
-import { Movie } from '../entities/movie.entity';
+import { Movie } from '../movie.entity';
 
 describe('MoviesService', () => {
   let service: MoviesService;

@@ -1,4 +1,4 @@
-import { Showtime } from './entities/showtime.entity';
+import { Showtime } from './showtime.entity';
 
 export class CreateShowtimeDto {
   price: number;

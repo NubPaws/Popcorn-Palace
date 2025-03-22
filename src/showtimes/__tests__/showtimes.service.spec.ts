@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MoviesRepository } from '../../movies/movies.repository';
 import { ShowtimesRepository } from '../showtimes.repository';
 import { ShowtimesService } from '../showtimes.service';
-import { Showtime } from '../entities/showtime.entity';
-import { Movie } from '../../movies/entities/movie.entity';
+import { Showtime } from '../showtime.entity';
+import { Movie } from '../../movies/movie.entity';
 import {
   BadRequestException,
   ConflictException,

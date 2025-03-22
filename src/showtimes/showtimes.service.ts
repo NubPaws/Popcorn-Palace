@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ShowtimesRepository } from './showtimes.repository';
-import { Showtime } from './entities/showtime.entity';
+import { Showtime } from './showtime.entity';
 import { MoviesRepository } from '../movies/movies.repository';
 import { CreateShowtimeDto, UpdateShowtimeDto } from './showtimes.dto';
 
