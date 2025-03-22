@@ -1,10 +1,25 @@
+import { IsInt } from 'class-validator';
 import { Movie } from './movie.entity';
+import {
+  IsInRange,
+  IsPositiveInteger,
+  IsValidString,
+} from '../validation-utils';
 
 export class CreateMovieDto {
+  @IsValidString('Movie title')
   title: string;
+
+  @IsValidString('Movie genre')
   genre: string;
+
+  @IsPositiveInteger('Movie duration')
   duration: number;
+
+  @IsInRange('Movie rating', 0, 10)
   rating: number;
+
+  @IsInt({ message: 'Movie release year must be a whole number.' })
   releaseYear: number;
 }
 

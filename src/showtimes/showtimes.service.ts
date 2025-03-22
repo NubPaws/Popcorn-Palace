@@ -27,6 +27,13 @@ export class ShowtimesService {
   async add(createShowtimeDto: CreateShowtimeDto): Promise<Showtime> {
     const { movieId, price, theater, startTime, endTime } = createShowtimeDto;
 
+    const startTimeDate = new Date(startTime);
+    const endTimeDate = new Date(endTime);
+
+    if (startTimeDate > endTimeDate) {
+      throw new BadRequestException(`Start time must be before end time.`);
+    }
+
     // Check the movie exists.
     const movie = await this.moviesRepository.getById(movieId);
     if (!movie) {
@@ -37,8 +44,8 @@ export class ShowtimesService {
     showtime.price = price;
     showtime.theater = theater;
     showtime.movie = movie;
-    showtime.startTime = new Date(startTime);
-    showtime.endTime = new Date(endTime);
+    showtime.startTime = startTimeDate;
+    showtime.endTime = endTimeDate;
 
     // addShowtime will validate the time. We only need to validate
     // that the time doesn't collide with other shows.
