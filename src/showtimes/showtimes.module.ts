@@ -10,5 +10,6 @@ import { MoviesModule } from '../movies/movies.module';
   imports: [TypeOrmModule.forFeature([Showtime]), MoviesModule],
   controllers: [ShowtimesController],
   providers: [ShowtimesService, ShowtimesRepository],
+  exports: [ShowtimesRepository],
 })
 export class ShowtimesModule {}
