@@ -1,9 +1,13 @@
 import { IsDateString } from 'class-validator';
-import { IsPositiveInteger, IsValidString } from '../validation-utils';
+import {
+  IsNonNegative,
+  IsPositiveInteger,
+  IsValidString,
+} from '../validation-utils';
 import { Showtime } from './showtime.entity';
 
 export class CreateShowtimeDto {
-  @IsPositiveInteger('Showtime price')
+  @IsNonNegative('Showtime price')
   price: number;
 
   @IsPositiveInteger('Showtime movie ID')

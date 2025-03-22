@@ -1,9 +1,9 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
 import * as request from 'supertest';
+import { AppTestModule } from './app-test.module';
 
-const toMillis = (hrs: number) => hrs * 60 * 60 * 1000;
+const hrsToMs = (hrs: number) => hrs * 60 * 60 * 1000;
 
 describe('Showtimes API (e2e)', () => {
   let app: INestApplication;
@@ -12,7 +12,7 @@ describe('Showtimes API (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppTestModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -45,8 +45,8 @@ describe('Showtimes API (e2e)', () => {
       movieId: movieId,
       price: 12.5,
       theater: 'Theater 1',
-      startTime: new Date(now + toMillis(1)).toISOString(),
-      endTime: new Date(now + toMillis(2)).toISOString(),
+      startTime: new Date(now + hrsToMs(1)).toISOString(),
+      endTime: new Date(now + hrsToMs(2)).toISOString(),
     };
 
     const response = await request(app.getHttpServer())
