@@ -1,7 +1,11 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Showtime } from './entities/showtime.entity';
-import { LessThan, MoreThan, Repository } from 'typeorm';
+import { LessThan, MoreThan, Not, Repository } from 'typeorm';
 
 @Injectable()
 export class ShowtimesRepository {
@@ -11,19 +15,25 @@ export class ShowtimesRepository {
   ) {}
 
   async getShowtime(showtimeId?: number): Promise<Showtime | null> {
-    return this.repo.findOneBy({ id: showtimeId });
+    return this.repo.findOne({
+      where: { id: showtimeId },
+      relations: ['movie'],
+    });
   }
 
-  async addShowtime(showtime: Showtime): Promise<Showtime> {
-    const existingOne = await this.repo.findOne({
+  async doesTimeConflict(showtime: Showtime): Promise<boolean> {
+    return this.repo.exists({
       where: {
+        id: Not(showtime.id),
         theater: showtime.theater,
         startTime: LessThan(showtime.endTime),
         endTime: MoreThan(showtime.startTime),
       },
     });
+  }
 
-    if (existingOne) {
+  async addShowtime(showtime: Showtime): Promise<Showtime> {
+    if (await this.doesTimeConflict(showtime)) {
       throw new ConflictException(
         'Another show is scheduled in the same theater this time.',
       );
@@ -37,9 +47,19 @@ export class ShowtimesRepository {
     updates: Partial<Showtime>,
   ): Promise<Showtime> {
     const showtime = await this.repo.findOneBy({ id: showtimeId });
+    if (!showtime) {
+      throw new NotFoundException(`Showtime #${showtimeId} does not exist`);
+    }
 
     Object.assign(showtime, updates);
-    return this.repo.save(showtime);
+
+    if (await this.doesTimeConflict(showtime)) {
+      throw new ConflictException(
+        'Another show is scheduled in the same theater this time.',
+      );
+    }
+
+    return this.addShowtime(showtime);
   }
 
   async deleteShowtime(showtimeId: number): Promise<void> {

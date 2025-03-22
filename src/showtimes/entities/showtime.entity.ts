@@ -9,9 +9,9 @@ import {
 import { Movie } from '../../movies/entities/movie.entity';
 import { Booking } from '../../booking/entities/booking.entity';
 
-@Entity()
+@Entity({ name: 'showtime' })
 export class Showtime {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ type: 'float' })
@@ -20,6 +20,10 @@ export class Showtime {
   @ManyToOne(() => Movie, (movie) => movie.showtimes)
   @JoinColumn({ name: 'movieId' })
   movie: Movie;
+
+  get movieId(): number {
+    return this.movie?.id;
+  }
 
   @Column({ type: 'text' })
   theater: string;

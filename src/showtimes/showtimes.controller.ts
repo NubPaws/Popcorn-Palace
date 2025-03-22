@@ -13,18 +13,6 @@ import {
   UpdateShowtimeDto,
 } from './showtimes.dto';
 import { ShowtimesService } from './showtimes.service';
-import { Showtime } from './entities/showtime.entity';
-
-function responseFromShowtime(showtime: Showtime): ResponseShowtimeDto {
-  return {
-    id: showtime.id,
-    movieId: showtime.movieId,
-    theater: showtime.theater,
-    price: showtime.price,
-    startTime: showtime.startTime.toISOString(),
-    endTime: showtime.endTime.toISOString(),
-  } as ResponseShowtimeDto;
-}
 
 @Controller('showtimes')
 export class ShowtimesController {
@@ -32,9 +20,11 @@ export class ShowtimesController {
 
   @Get(':showtimeId')
   @HttpCode(200)
-  async find(@Param('showtimeId') showtimeId: number) {
+  async find(
+    @Param('showtimeId') showtimeId: number,
+  ): Promise<ResponseShowtimeDto> {
     const showtime = await this.showtimesService.find(showtimeId);
-    return responseFromShowtime(showtime);
+    return new ResponseShowtimeDto(showtime);
   }
 
   @Post()
@@ -42,11 +32,8 @@ export class ShowtimesController {
   async add(
     @Body() createShowtimeDto: CreateShowtimeDto,
   ): Promise<ResponseShowtimeDto> {
-    const showtime = await this.showtimesService.add(
-      new Showtime(createShowtimeDto),
-    );
-
-    return responseFromShowtime(showtime);
+    const showtime = await this.showtimesService.add(createShowtimeDto);
+    return new ResponseShowtimeDto(showtime);
   }
 
   @Post('update/:showtimeId')
@@ -54,25 +41,17 @@ export class ShowtimesController {
   async update(
     @Param('showtimeId') showtimeId: number,
     @Body() updateShowtimeDto: UpdateShowtimeDto,
-  ) {
-    const { startTime, endTime } = updateShowtimeDto;
-
-    const updatedData: Partial<Showtime> = {
-      ...updateShowtimeDto,
-      startTime: startTime ? new Date(startTime) : undefined,
-      endTime: endTime ? new Date(endTime) : undefined,
-    };
-
+  ): Promise<ResponseShowtimeDto> {
     const showtime = await this.showtimesService.update(
       showtimeId,
-      updatedData,
+      updateShowtimeDto,
     );
-    return responseFromShowtime(showtime);
+    return new ResponseShowtimeDto(showtime);
   }
 
   @Delete(':showtimeId')
   @HttpCode(200)
-  async remove(@Param('showtimeId') showtimeId: number) {
-    this.showtimesService.remove(showtimeId);
+  async remove(@Param('showtimeId') showtimeId: number): Promise<void> {
+    await this.showtimesService.remove(showtimeId);
   }
 }
